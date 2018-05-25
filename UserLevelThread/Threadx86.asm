@@ -1,0 +1,39 @@
+.686
+.model flat
+
+_TEXT SEGMENT
+
+@restore@8 PROC
+	MOV [ECX], ESP
+	MOV DWORD PTR [EDX + 4], 2
+	MOV ESP, [EDX]
+	RET
+@restore@8 ENDP
+
+@yield@8 PROC PUBLIC
+	PUSH EBX
+	PUSH EBP
+	PUSH EDI
+	PUSH ESI
+
+	MOV DWORD PTR [ECX + 4], EDX
+	MOV EDX, [ECX + 8]
+	CALL @restore@8
+
+	POP ESI
+	POP EDI
+	POP EBP
+	POP EBX
+	RET
+@yield@8 ENDP
+
+_thread_func PROC PUBLIC
+	POP EAX
+	CALL EAX
+	POP ECX
+	XOR EDX, EDX
+	CALL @yield@8
+_thread_func ENDP
+
+_TEXT ENDS
+END

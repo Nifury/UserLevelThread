@@ -1,59 +1,65 @@
 #include "Thread.h"
+#include <windows.h>
 
-Thread scheduler;
-Thread thread_list;
+extern "C" void thread_func();
 
-Thread* GetNextThread()
+void Scheduler::Loop()
 {
-	return &thread_list;
-}
-
-__declspec(naked) void __fastcall restore(Thread* cur, Thread* next)
-{
-	__asm
+	while (true)
 	{
-		MOV[ECX], ESP;
-		MOV ESP, [EDX];
-		RET;
+		auto next = GetNextThread();
+		if (next)
+		{
+			this->next = next;
+			yield(this, ThreadStatus::READY);
+			if (next->status == ThreadStatus::ZOMBIE)
+			{
+				free_list_.emplace_back(next);
+			}
+		}
+		else
+		{
+			//TODO: wait for IOCP
+			printf("No thread to schedule\n");
+			return;
+		}
 	}
 }
 
-__declspec(naked) void __fastcall yield(Thread* t)
+Thread* Scheduler::GetNextThread()
 {
-	__asm
+	for (Thread& t : thread_list_)
 	{
-		PUSHAD;
-		PUSHFD;
-		MOV EDX, OFFSET scheduler;
-		CALL restore;
-		POPFD;
-		POPAD;
-		RETN;
+		if (t.status == ThreadStatus::READY)
+			return &t;
 	}
+	return nullptr;
 }
 
-static __declspec(naked) void thread_func()
+Thread* Scheduler::CreateThread(Func func, void* arg)
 {
-	__asm
+	constexpr int DEFAULT_STACK_SIZE = 4 << 20;
+	Thread* new_thread;
+	if (free_list_.empty())
 	{
-		POP EAX;
-		CALL EAX;
-		ADD ESP, 4;
-		POP ECX;
-		MOV[ECX + 4], 0;
-		CALL yield;
+		thread_list_.emplace_back();
+		new_thread = &thread_list_.back();
+		new_thread->stack_data = VirtualAlloc(0, DEFAULT_STACK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+		new_thread->next = this;
 	}
-}
+	else
+	{
+		new_thread = free_list_.back();
+		free_list_.pop_back();
+	}
 
-Thread* CreateThread(void* func, void* arg)
-{
-	char* stack = new char[4096];
-	stack = stack + 4096 - 16;
-	void** p = (void**)stack;
-	*p++ = &thread_func;
-	*p++ = func;
-	*p++ = arg;
-	*p++ = &thread_list;
-	thread_list.stack = stack;
-	return &thread_list;
+	void** p = (void**)(int(new_thread->stack_data) + DEFAULT_STACK_SIZE);
+
+	*--p = new_thread;
+	*--p = arg;
+	*--p = func;
+	*--p = &thread_func;
+	new_thread->stack = (void*)p;
+	new_thread->status = ThreadStatus::READY;
+	return new_thread;
 }
