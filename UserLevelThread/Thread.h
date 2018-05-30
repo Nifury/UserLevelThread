@@ -47,7 +47,8 @@ public:
 protected:
 	virtual Thread * GetNextThread();
 
-private:
 	std::vector<Thread> thread_list_;
+
+private:
 	std::vector<Thread*> free_list_;
 };
