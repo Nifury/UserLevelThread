@@ -148,9 +148,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Monitor.h" />
     <ClInclude Include="Thread.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Monitor.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="UserLevelThread.cpp" />
   </ItemGroup>

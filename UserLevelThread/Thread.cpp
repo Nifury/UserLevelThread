@@ -36,6 +36,13 @@ Thread* Scheduler::GetNextThread()
 	return nullptr;
 }
 
+Scheduler::Scheduler() :
+	monitor_(this, GetCurrentThreadId())
+{
+	switch_count_ = 0;
+	monitor_.Start();
+}
+
 Thread* Scheduler::CreateThread(Func func, void* arg)
 {
 	constexpr int DEFAULT_STACK_SIZE = 4 << 20;
@@ -61,5 +68,6 @@ Thread* Scheduler::CreateThread(Func func, void* arg)
 	*--p = &thread_func;
 	new_thread->stack = (void*)p;
 	new_thread->status = ThreadStatus::READY;
+	new_thread->switch_count_ = 0;
 	return new_thread;
 }

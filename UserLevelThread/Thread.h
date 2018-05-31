@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include "Monitor.h"
 
 struct Scheduler;
 struct Thread;
@@ -20,6 +21,7 @@ struct Thread
 	Thread* next;
 
 	void* stack_data;
+	std::uint32_t switch_count_;
 };
 
 struct Scheduler : Thread
@@ -38,6 +40,8 @@ public:
 		return ret;
 	}
 
+	Scheduler();
+
 	virtual ~Scheduler()
 	{}
 
@@ -51,4 +55,5 @@ protected:
 
 private:
 	std::vector<Thread*> free_list_;
+	Monitor monitor_;
 };

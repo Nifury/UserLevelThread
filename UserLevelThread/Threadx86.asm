@@ -4,6 +4,7 @@
 _TEXT SEGMENT
 
 @restore@8 PROC
+	INC DWORD PTR [ECX + 16]
 	MOV [ECX], ESP
 	MOV DWORD PTR [EDX + 4], 2
 	MOV ESP, [EDX]
@@ -26,6 +27,22 @@ _TEXT SEGMENT
 	POP EBX
 	RET
 @yield@8 ENDP
+
+_force_yield@4 PROC PUBLIC
+	PUSHAD
+	PUSHFD
+	;FPU
+
+	MOV ECX, DWORD PTR [ESP + 40]
+	MOV DWORD PTR [ECX + 4], 1
+	MOV EDX, [ECX + 8]
+	CALL @restore@8
+
+	;FPU
+	POPFD
+	POPAD
+	RET 4
+_force_yield@4 ENDP
 
 _thread_func PROC PUBLIC
 	POP EAX
