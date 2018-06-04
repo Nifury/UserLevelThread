@@ -152,7 +152,9 @@
     <ClInclude Include="Thread.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LotteryScheduler.cpp" />
     <ClCompile Include="Monitor.cpp" />
+    <ClCompile Include="StrideScheduler.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="UserLevelThread.cpp" />
   </ItemGroup>

@@ -50,18 +50,34 @@ public:
 	virtual ~Scheduler()
 	{}
 
-	Thread* CreateThread(Func func, void* arg);
+	virtual Thread* CreateThread(Func func, void* arg);
 	void Loop();
 
 protected:
 	virtual Thread * GetNextThread();
 
 	std::vector<Thread> thread_list_;
-	//runze added
-	virtual Thread * GetNextThreadStride();
-	virtual Thread * GetNextThreadLottery();
-	//runze added
+
 private:
 	std::vector<Thread*> free_list_;
 	Monitor monitor_;
+};
+
+struct LotteryScheduler : Scheduler
+{
+public:
+	virtual Thread* CreateThread(Func func, void* arg) override;
+
+protected:
+	virtual Thread * GetNextThread() override;
+};
+
+struct StrideScheduler : Scheduler
+{
+public:
+	virtual Thread* CreateThread(Func func, void* arg) override;
+	Thread* CreateThread(Func func, void* arg, int tickets, int strides);
+
+protected:
+	virtual Thread * GetNextThread() override;
 };
