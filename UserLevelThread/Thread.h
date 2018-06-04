@@ -22,6 +22,11 @@ struct Thread
 
 	void* stack_data;
 	std::uint32_t switch_count_;
+	// runze added
+	int ticket;
+	int stride;
+	int pass;
+	// runze added
 };
 
 struct Scheduler : Thread
@@ -52,7 +57,10 @@ protected:
 	virtual Thread * GetNextThread();
 
 	std::vector<Thread> thread_list_;
-
+	//runze added
+	virtual Thread * GetNextThreadStride();
+	virtual Thread * GetNextThreadLottery();
+	//runze added
 private:
 	std::vector<Thread*> free_list_;
 	Monitor monitor_;
