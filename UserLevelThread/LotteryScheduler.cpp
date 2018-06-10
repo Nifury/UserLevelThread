@@ -1,6 +1,6 @@
 #include "Thread.h"
 
-Thread* LotteryScheduler::CreateThread(Func func, void* arg)
+Thread* LotteryScheduler::CreateThread(Func func, void* arg, int tickets)
 {
 	auto thread = Scheduler::CreateThread(func, arg);
 	//FIXME
@@ -9,6 +9,11 @@ Thread* LotteryScheduler::CreateThread(Func func, void* arg)
 	}
 	thread->ticket = ticket;
 	return thread;
+}
+
+Thread* LotteryScheduler::CreateThread(Func func, void* arg)
+{
+	return CreateThread(func, arg, 20);
 }
 
 // get random number
@@ -50,7 +55,7 @@ Thread * LotteryScheduler::GetNextThread()
 		{
 			continue;
 		}
-		if (t.status == ThreadStatus::READY || ((count + t.ticket) < golden_number)) {
+		if (((count + t.ticket) < golden_number)) {
 			count += t.ticket;
 			continue;
 		}
