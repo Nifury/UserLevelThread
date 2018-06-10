@@ -67,6 +67,7 @@ struct LotteryScheduler : Scheduler
 {
 public:
 	virtual Thread* CreateThread(Func func, void* arg) override;
+    Thread* CreateThread(Func func, void* arg, int tickets);
 
 protected:
 	virtual Thread * GetNextThread() override;
