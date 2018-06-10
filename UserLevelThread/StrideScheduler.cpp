@@ -30,7 +30,7 @@ Thread * StrideScheduler::GetNextThread()
 		{
 			continue;
 		}
-		if (t.status == ThreadStatus::READY || t.pass < next_thread->pass)
+		if (next_thread == nullptr || (t.pass < next_thread->pass))
 		{
 			next_thread = &t;
 			next_thread->pass += next_thread->stride;
