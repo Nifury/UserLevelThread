@@ -28,10 +28,12 @@ void Scheduler::Loop()
 
 Thread* Scheduler::GetNextThread()
 {
-	for (Thread& t : thread_list_)
+	for (int i = 0, len = thread_list_.size(); i < len; ++i)
 	{
-		if (t.status == ThreadStatus::READY)
-			return &t;
+		auto ret = thread_list_[last_pos_++];
+		last_pos_ = last_pos_ % len;
+		if (ret->status == ThreadStatus::READY)
+			return ret;
 	}
 	return nullptr;
 }
@@ -49,10 +51,10 @@ Thread* Scheduler::CreateThread(Func func, void* arg)
 	Thread* new_thread;
 	if (free_list_.empty())
 	{
-		thread_list_.emplace_back();
-		new_thread = &thread_list_.back();
+		new_thread = new Thread;
 		new_thread->stack_data = VirtualAlloc(0, DEFAULT_STACK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 		new_thread->next = this;
+		thread_list_.push_back(new_thread);
 	}
 	else
 	{

@@ -24,15 +24,15 @@ Thread* StrideScheduler::CreateThread(Func func, void* arg, int tickets, int str
 Thread * StrideScheduler::GetNextThread()
 {
 	Thread* next_thread = nullptr;
-	for (Thread& t : thread_list_)
+	for (auto t : thread_list_)
 	{
-		if (t.status != ThreadStatus::READY)
+		if (t->status != ThreadStatus::READY)
 		{
 			continue;
 		}
-		if (next_thread == nullptr || (t.pass < next_thread->pass))
+		if (next_thread == nullptr || (t->pass < next_thread->pass))
 		{
-			next_thread = &t;
+			next_thread = t;
 			next_thread->pass += next_thread->stride;
 			return next_thread;
 		}

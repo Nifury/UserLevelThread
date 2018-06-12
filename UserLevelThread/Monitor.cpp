@@ -3,7 +3,6 @@
 
 extern "C" void __stdcall force_yield(Thread* t);
 
-
 Monitor::Monitor(Scheduler* scheduler, DWORD thread_id) :
 	scheduler_(scheduler), thread_(OpenThread(THREAD_GET_CONTEXT | THREAD_SET_CONTEXT, FALSE, thread_id))
 {
@@ -12,6 +11,8 @@ Monitor::Monitor(Scheduler* scheduler, DWORD thread_id) :
 
 Monitor::~Monitor()
 {
+	enable_ = false;
+	WaitForSingleObject(thread_, INFINITE);
 	CloseHandle(thread_);
 }
 
@@ -32,7 +33,7 @@ void __stdcall Monitor::MonitorThread()
 	std::uint32_t count = 0;
 	while (enable_)
 	{
-		Sleep(1000);
+		Sleep(100);
 		if (scheduler_->status == ThreadStatus::READY && scheduler_->switch_count_ == count)
 		{
 			SuspendThread(thread_);

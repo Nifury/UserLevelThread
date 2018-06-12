@@ -4,10 +4,10 @@ Thread* LotteryScheduler::CreateThread(Func func, void* arg, int tickets)
 {
 	auto thread = Scheduler::CreateThread(func, arg);
 	//FIXME
-	if (!(ticket > 0)) {
-		ticket = 1;
+	if (!(tickets > 0)) {
+		tickets = 1;
 	}
-	thread->ticket = ticket;
+	thread->ticket = tickets;
 	return thread;
 }
 
@@ -37,9 +37,9 @@ Thread * LotteryScheduler::GetNextThread()
 	int total_tickets = 0;
 	int golden_number;
 	int count = 0;
-	for (Thread& t : thread_list_)
+	for (auto t : thread_list_)
 	{
-		total_tickets += t.ticket;
+		total_tickets += t->ticket;
 	}
 	if (total_tickets != 0)
 	{
@@ -49,17 +49,17 @@ Thread * LotteryScheduler::GetNextThread()
 		}
 		golden_number = (golden_number % total_tickets) + 1;
 	}
-	for (Thread& t : thread_list_)
+	for (auto t : thread_list_)
 	{
-		if (t.status != ThreadStatus::READY)
+		if (t->status != ThreadStatus::READY)
 		{
 			continue;
 		}
-		if (((count + t.ticket) < golden_number)) {
-			count += t.ticket;
+		if (((count + t->ticket) < golden_number)) {
+			count += t->ticket;
 			continue;
 		}
-		return &t;
+		return t;
 	}
 	return nullptr;
 }
